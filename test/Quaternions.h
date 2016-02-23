@@ -19,9 +19,9 @@
 
 #include <math.h>
 
-#define Kp 2.0 //比例增益 收敛速度，以加速度计/磁强计
-#define Ki 0.005  // 积分增益 陀螺仪偏差的收敛速度
-float halfT=0.002;//一半的采样周期
+#define Kp 50.0 //比例增益 收敛速度，以加速度计/磁强计
+#define Ki 0.001  // 积分增益 陀螺仪偏差的收敛速度
+float halfT=0.005;//一半的采样周期
 
 double  q0 = 1, q1 = 0, q2 = 0, q3 = 0; // 四元数元素方位估计
 float exInt = 0, eyInt = 0, ezInt = 0; // 缩放积分误差
@@ -74,9 +74,9 @@ void Quaternions_Count( float ax, float ay, float az,float gx, float gy, float g
 	eyInt = eyInt + ey*Ki;
 	ezInt = ezInt + ez*Ki;
 	//调整陀螺仪的测量
- 	gx = gx + Kp*ex + exInt;
-  	gy = gy + Kp*ey + eyInt;
-  	gz = gz + Kp*ez + ezInt;
+  	gx = gx + Kp*ex + exInt;
+   	gy = gy + Kp*ey + eyInt;
+   	gz = gz + Kp*ez + ezInt;
  	
 	
 	
@@ -98,7 +98,7 @@ void Quaternions_Count( float ax, float ay, float az,float gx, float gy, float g
 
 void Quaternions_to_EulerAngles()
 {// x_EulerAngles=atan2(2*q0*q3,1-2*q2*q2-2*q3*q3);
-	yaw=(atan2(2*q1*q2+2*q0*q3,1-2*q0*q0+2*q1*q1))*57.3;
+	yaw=(atan2(2*q1*q2+2*q0*q3,(2*q0*q0+2*q1*q1)-1))*57.3;
 	pitch=(-asin(2 * q1 * q3 - 2 * q0 * q2))*57.3;     
-	 roll=(atan2(2 * q2 * q3 + 2 * q0 * q1,1- 2 * q0 * q0 + 2 * q3 * q3 ))*57.3; 
+	 roll=(atan2(2 * q2 * q3 + 2 * q0 * q1,(2 * q0 * q0 + 2 * q3 * q3 )-1))*57.3; 
 	};

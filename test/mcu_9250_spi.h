@@ -14,6 +14,8 @@
 #define MPU9250G_2000dps  ((float)0.060975609756f)  // 0.060975609756 dps/LSB
 
 #define MPU9250_I2C_ADDR            0xD0
+
+#define MPU9250_SMPLRT_DIV          0x19
 #define MPU9250_CONFIG              0x1A
 #define MPU9250_GYRO_CONFIG         0x1B
 #define MPU9250_ACCEL_CONFIG        0x1C
@@ -31,7 +33,8 @@
 #define MPU9250_I2C_SLV4_DI         0x35
 #define MPU9250_I2C_MST_STATUS      0x36
 #define MPU9250_INT_PIN_CFG         0x37
-
+#define MPU9250_INT_ENABLE          0x38
+#define MPU9250_INT_STATUS          0x3A
 #define MPU9250_ACCEL_XOUT_H        0x3B
 #define MPU9250_ACCEL_XOUT_L        0x3C
 #define MPU9250_ACCEL_YOUT_H        0x3D
@@ -133,19 +136,31 @@ void SPI_MasterInit(void)
 
 void MPU9250_Init(void)
 {  
-     SPI_write_9250(MPU9250_PWR_MGMT_1     ,0x80);//复位
-	 SPI_write_9250(MPU9250_PWR_MGMT_1     ,0x01);
-	 SPI_write_9250(MPU9250_PWR_MGMT_2     ,0x00);//使能 加速度计 角速度计
-	 SPI_write_9250(MPU9250_CONFIG         ,0x07);// 低通滤波
-     // SPI_write_9250(MPU9250_GYRO_CONFIG  ,0x13);//角速度计 +-1000dps量程 ，低通滤波 
-	 SPI_write_9250(MPU9250_GYRO_CONFIG    ,0x18);//角速度计 +-2000dps量程 ，低通滤波  
-   //SPI_write_9250(MPU9250_ACCEL_CONFIG ,0x00);//加速度计+-2g
-	 SPI_write_9250(MPU9250_ACCEL_CONFIG   ,0x08);//加速度计+-4g
-	 SPI_write_9250(MPU9250_ACCEL_CONFIG_2 ,0x00);//加速度计低通滤波关闭 
-	 SPI_write_9250(MPU9250_INT_PIN_CFG    ,0x30);//开启中断 高电平 推举式 一直保持 读取清零
-	 SPI_write_9250(MPU9250_I2C_MST_CTRL  ,0x40);// I2C Speed 
-	 SPI_write_9250(MPU9250_USER_CTRL      ,0x20);// Enable AUX
+//      SPI_write_9250(MPU9250_PWR_MGMT_1     ,0x80);//复位
+// 	 SPI_write_9250(MPU9250_PWR_MGMT_1     ,0x01);
+// 	 SPI_write_9250(MPU9250_PWR_MGMT_2     ,0x00);//使能 加速度计 角速度计
+// 	 SPI_write_9250(MPU9250_CONFIG         ,0x07);// 低通滤波
+//      // SPI_write_9250(MPU9250_GYRO_CONFIG  ,0x13);//角速度计 +-1000dps量程 ，低通滤波 
+// 	 SPI_write_9250(MPU9250_GYRO_CONFIG    ,0x18);//角速度计 +-2000dps量程 ，低通滤波  
+//    //SPI_write_9250(MPU9250_ACCEL_CONFIG ,0x00);//加速度计+-2g
+// 	 SPI_write_9250(MPU9250_ACCEL_CONFIG   ,0x08);//加速度计+-4g
+// 	 SPI_write_9250(MPU9250_ACCEL_CONFIG_2 ,0x00);//加速度计低通滤波关闭 
+// 	 SPI_write_9250(MPU9250_INT_PIN_CFG    ,0x30);//开启中断 高电平 推举式 一直保持 读取清零
+// 	 SPI_write_9250(MPU9250_I2C_MST_CTRL  ,0x40);// I2C Speed 
+// 	 SPI_write_9250(MPU9250_USER_CTRL      ,0x20);// Enable AUX
 
+ SPI_write_9250(MPU9250_PWR_MGMT_1     ,0x80);// [0]  Reset Device
+ SPI_write_9250(MPU9250_PWR_MGMT_1     ,0x04);// [1]  Clock Source
+ SPI_write_9250(MPU9250_INT_PIN_CFG    ,0x10);// [2]  Set INT_ANYRD_2CLEAR
+ SPI_write_9250(MPU9250_INT_ENABLE     ,0x01);// [3]  Set RAW_RDY_EN
+ SPI_write_9250(MPU9250_PWR_MGMT_2     ,0x00);// [4]  Enable Acc & Gyro
+ SPI_write_9250(MPU9250_SMPLRT_DIV     ,0x00);// [5]  Sample Rate Divider
+ SPI_write_9250(MPU9250_GYRO_CONFIG    ,0x18);// [6]  default : +-2000dps
+ SPI_write_9250(MPU9250_ACCEL_CONFIG   ,0x08);// [7]  default : +-4G
+ SPI_write_9250(MPU9250_CONFIG         ,0x01);// [8]  default : LPS_184Hz
+ SPI_write_9250(MPU9250_ACCEL_CONFIG_2 ,0x03);// [9]  default : LPS_41Hz
+ //SPI_write_9250(MPU9250_I2C_MST_CTRL ,0x40);// I2C Speed
+ SPI_write_9250(MPU9250_USER_CTRL      ,0x30);// [10] Set I2C_MST_EN, I2C_IF_DIS
 
    MPU9250_Mag_Write(AK8963_CNTL2,0x01);//磁力计复位 
    MPU9250_Mag_Write(AK8963_CNTL1, 0x10);       // Power-down mode
